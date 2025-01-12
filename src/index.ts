@@ -2,7 +2,7 @@ import type * as CSS from "csstype";
 import type p5 from "p5";
 import van from "vanjs-core";
 
-const { div, button } = van.tags;
+const { div, button, select, option } = van.tags;
 
 const logPrefix = "[p5-frame-capturer]";
 
@@ -18,7 +18,10 @@ const styleObjectToStylesheet = (styleObjects: CSS.Properties) => {
 };
 
 /** Supported image formats */
-export const supportedImageFormats = ["png", "jpeg", "webp"] as const;
+export const supportedImageFormats = ["png", "jpg", "webp"] as const;
+
+/** Supported image formats */
+export type SupportedImageFormat = (typeof supportedImageFormats)[number];
 
 /** Options for the capturer */
 export type Options = {
@@ -28,9 +31,9 @@ export type Options = {
   frames: number | undefined;
 };
 
-const formatToMimeType: Record<Options["format"], string> = {
+const formatToMimeType: Record<SupportedImageFormat, string> = {
   png: "image/png",
-  jpeg: "image/jpeg",
+  jpg: "image/jpeg",
   webp: "image/webp",
 };
 
@@ -56,7 +59,7 @@ const internalState = {
   frames: van.state<number | undefined>(undefined),
 
   directoryHandle: undefined as FileSystemDirectoryHandle | undefined,
-  format: van.state<"png" | "jpeg" | "webp">("png"),
+  format: van.state<SupportedImageFormat>("png"),
   p: undefined as p5 | undefined,
   wasLooping: false,
 
@@ -104,7 +107,7 @@ async function postDraw() {
   }
 
   internalState.p?.redraw();
-};
+}
 
 const onMouseMove = (e: MouseEvent) => {
   const p = internalState.p;
@@ -182,6 +185,33 @@ export async function attachCapturerUi(p: p5) {
       }
       return `${state.frameCount}/${state.frames}`;
     }),
+    div(
+      {
+        style: () =>
+          styleObjectToStylesheet({
+            display: "flex",
+            gap: "4px",
+          }),
+      },
+      "Format: ",
+      select(
+        {
+          onchange: (e: Event) => {
+            const target = e.target as HTMLSelectElement;
+            internalState.format.val = target.value as Options["format"];
+          },
+        },
+        supportedImageFormats.map((format) =>
+          option(
+            {
+              value: format,
+              selected: internalState.format.val === format,
+            },
+            format,
+          ),
+        ),
+      ),
+    ),
 
     button(
       {
