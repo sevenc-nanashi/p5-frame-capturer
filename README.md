@@ -1,5 +1,7 @@
 # p5-frame-capturer / Capture p5.js frames and saves into your local file system
 
+[![npm](https://img.shields.io/npm/v/p5-frame-capturer)](https://www.npmjs.com/package/p5-frame-capturer)
+
 This is a simple tool to capture frames from a p5.js sketch and save them into your local file system.
 It is useful for creating animations or exporting frames for further processing.
 
@@ -13,7 +15,7 @@ It is useful for creating animations or exporting frames for further processing.
 1. Include following script in your p5.js sketch:
 
 ```html
-<script src="https://cdn.jsdelivr.net/p5-frame-capturer/dist/umd.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/p5-frame-capturer/dist/umd.js"></script>
 ```
 
 ### Via bundler (ESModule mode, For using with bundlers like Vite)
