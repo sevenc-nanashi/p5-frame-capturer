@@ -3,6 +3,9 @@
 This is a simple tool to capture frames from a p5.js sketch and save them into your local file system.
 It is useful for creating animations or exporting frames for further processing.
 
+> [!WARNING]
+> This package uses [File System Access API](https://developer.mozilla.org/en-US/docs/Web/API/File_System_API), so it is only available in Chromium-based browsers.
+
 ## Usage
 
 ### Via script tag (UMD mode, For p5.js web editor)
