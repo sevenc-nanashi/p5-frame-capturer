@@ -2,6 +2,7 @@
   "name": "p5-frame-capturer",
   "version": "0.1.0",
   "description": "Capture p5.js frames and saves into your local file system",
+  "packageManager": "pnpm@9.15.3",
   "author": {
     "name": "Nanashi.",
     "url": "https://sevenc7c.com"
@@ -30,9 +31,7 @@
     }
   },
   "keywords": [],
-  "files": [
-    "dist"
-  ],
+  "files": ["dist"],
   "license": "MIT",
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
