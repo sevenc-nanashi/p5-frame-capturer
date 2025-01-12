@@ -19,7 +19,7 @@
     "lint:fix": "biome check --write --unsafe",
     "build:main": "pkgroll",
     "build:sub": "node --experimental-strip-types ./build.ts",
-    "build": "run-p build:main build:sub",
+    "build": "run-p build:*",
     "dev:main": "pkgroll -w",
     "dev:sub": "node --experimental-strip-types ./build.ts --watch",
     "dev": "run-p dev:main dev:sub"
@@ -31,7 +31,9 @@
     }
   },
   "keywords": [],
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "license": "MIT",
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",

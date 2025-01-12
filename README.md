@@ -1,6 +1,8 @@
 # p5-frame-capturer / Capture p5.js frames and saves into your local file system
 
-[![npm](https://img.shields.io/npm/v/p5-frame-capturer)](https://www.npmjs.com/package/p5-frame-capturer)
+[![npm version](https://img.shields.io/npm/v/p5-frame-capturer)](https://npmjs.com/package/p5-frame-capturer)
+[![npm downloads](https://img.shields.io/npm/dm/p5-frame-capturer)](https://npm.chart.dev/p5-frame-capturer)
+[![license](https://img.shields.io/github/license/sevenc-nanashi/p5-frame-capturer)](https://github.com/sevenc-nanashi/p5-frame-capturer/blob/main/LICENSE)
 
 This is a simple tool to capture frames from a p5.js sketch and save them into your local file system.
 It is useful for creating animations or exporting frames for further processing.
@@ -43,6 +45,7 @@ Entire api is exported as a global variable `window.p5FrameCapturer`, or use ESM
 ### `supportedImageFormats: string[]`
 
 List of supported image formats.
+
 - `png`
 - `jpeg`
 - `webp`

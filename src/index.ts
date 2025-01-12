@@ -67,7 +67,7 @@ const internalState = {
   yOffset: van.state(0),
 };
 
-const postDraw = async () => {
+async function postDraw() {
   // @ts-expect-error undocumented
   const canvas: HTMLCanvasElement = internalState.p.canvas;
   const frameCount = state.frameCount;
