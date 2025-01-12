@@ -148,6 +148,7 @@ export async function attachCapturerUi(p: p5) {
           flexDirection: "column",
           gap: "2px",
           zIndex: "1000",
+          fontFamily: "sans-serif",
           left: `${internalState.positionX.val}px`,
           top: `${internalState.positionY.val}px`,
         }),
