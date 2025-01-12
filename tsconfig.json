@@ -1,0 +1,19 @@
+{
+	"compilerOptions": {
+		"emitDeclarationOnly": true,
+		"declaration": true,
+		"declarationMap": true,
+		"declarationDir": "./dist",
+		"outDir": "./dist",
+		"rootDir": "./src",
+		"target": "ESNext",
+		"module": "esnext",
+		"moduleResolution": "bundler",
+		"strict": true,
+		"esModuleInterop": true,
+		"skipLibCheck": true,
+		"resolveJsonModule": true,
+		"allowImportingTsExtensions": true
+	},
+	"include": ["src/**/*", "build.ts"]
+}

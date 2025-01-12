@@ -1,0 +1,51 @@
+{
+  "name": "p5-frame-capturer",
+  "version": "0.1.0",
+  "description": "Capture p5.js frames and saves into your local file system",
+  "author": {
+    "name": "Nanashi.",
+    "url": "https://sevenc7c.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sevenc-nanashi/p5-frame-capturer.git"
+  },
+  "homepage": "https://github.com/sevenc-nanashi/p5-frame-capturer",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build:main": "pkgroll",
+    "build:sub": "node --experimental-strip-types ./build.ts",
+    "build": "run-p build:main build:sub",
+    "dev:main": "pkgroll -w",
+    "dev:sub": "node --experimental-strip-types ./build.ts --watch",
+    "dev": "run-p dev:main dev:sub"
+  },
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "keywords": [],
+  "files": [
+    "dist"
+  ],
+  "license": "MIT",
+  "devDependencies": {
+    "@biomejs/biome": "^1.9.4",
+    "@types/node": "^22.10.5",
+    "@types/wicg-file-system-access": "^2023.10.5",
+    "csstype": "^3.1.3",
+    "npm-run-all2": "^7.0.2",
+    "pkgroll": "^2.6.1",
+    "rolldown": "1.0.0-beta.1",
+    "typescript": "^5.7.3"
+  },
+  "dependencies": {
+    "vanjs-core": "^1.5.3"
+  },
+  "optionalDependencies": {
+    "@types/p5": "^1.7.6"
+  }
+}
