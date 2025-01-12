@@ -2,7 +2,7 @@ import type * as CSS from "csstype";
 import type p5 from "p5";
 import van from "vanjs-core";
 
-const { div, button, select, option } = van.tags;
+const { div, a, button, select, option } = van.tags;
 
 const logPrefix = "[p5-frame-capturer]";
 
@@ -137,6 +137,7 @@ export async function attachCapturerUi(p: p5) {
   }
 
   const isStartButtonHovered = van.state(false);
+  const isMainUiHovered = van.state(false);
   const ui = div(
     {
       style: () =>
@@ -146,7 +147,7 @@ export async function attachCapturerUi(p: p5) {
           color: "#fff",
           padding: "8px",
           borderRadius: "8px",
-          backgroundColor: "#fff2",
+          backgroundColor: isMainUiHovered.val ? "#222" : "#2228",
           display: "flex",
           flexDirection: "column",
           gap: "2px",
@@ -155,6 +156,12 @@ export async function attachCapturerUi(p: p5) {
           left: `${internalState.positionX.val}px`,
           top: `${internalState.positionY.val}px`,
         }),
+      onmouseenter: () => {
+        isMainUiHovered.val = true;
+      },
+      onmouseleave: () => {
+        isMainUiHovered.val = false;
+      },
     },
     div(
       {
@@ -175,71 +182,88 @@ export async function attachCapturerUi(p: p5) {
       },
       "p5-frame-capturer",
     ),
-    div("Status: ", () => (state.isCapturing ? "Capturing" : "Ready")),
-    div("Frames: ", () => {
-      if (!state.isCapturing) {
-        return "-";
-      }
-      if (state.frames === undefined) {
-        return `${state.frameCount}`;
-      }
-      return `${state.frameCount}/${state.frames}`;
-    }),
-    div(
-      {
-        style: () =>
-          styleObjectToStylesheet({
-            display: "flex",
-            gap: "4px",
-          }),
-      },
-      "Format: ",
-      select(
-        {
-          onchange: (e: Event) => {
-            const target = e.target as HTMLSelectElement;
-            internalState.format.val = target.value as Options["format"];
-          },
-        },
-        supportedImageFormats.map((format) =>
-          option(
-            {
-              value: format,
-              selected: internalState.format.val === format,
-            },
-            format,
-          ),
-        ),
-      ),
-    ),
 
-    button(
-      {
-        style: () =>
-          styleObjectToStylesheet({
-            padding: "8px",
-            border: "1px solid #ccc",
-            borderRadius: "8px",
-            backgroundColor: isStartButtonHovered.val ? "#eee" : "#fff",
-            color: "#000",
-            cursor: "pointer",
+    "showDirectoryPicker" in window
+      ? [
+          div("Status: ", () => (state.isCapturing ? "Capturing" : "Ready")),
+          div("Frames: ", () => {
+            if (!state.isCapturing) {
+              return "-";
+            }
+            if (state.frames === undefined) {
+              return `${state.frameCount}`;
+            }
+            return `${state.frameCount}/${state.frames}`;
           }),
-        onmouseenter: () => {
-          isStartButtonHovered.val = true;
-        },
-        onmouseleave: () => {
-          isStartButtonHovered.val = false;
-        },
-        onclick: async () => {
-          if (state.isCapturing) {
-            await stopCapturer();
-          } else {
-            await startCapturer(p);
-          }
-        },
-      },
-      () => (state.isCapturing ? "Stop" : "Start"),
-    ),
+          div(
+            {
+              style: () =>
+                styleObjectToStylesheet({
+                  display: "flex",
+                  gap: "4px",
+                }),
+            },
+            "Format: ",
+            select(
+              {
+                onchange: (e: Event) => {
+                  const target = e.target as HTMLSelectElement;
+                  internalState.format.val = target.value as Options["format"];
+                },
+              },
+              supportedImageFormats.map((format) =>
+                option(
+                  {
+                    value: format,
+                    selected: internalState.format.val === format,
+                  },
+                  format,
+                ),
+              ),
+            ),
+          ),
+
+          button(
+            {
+              style: () =>
+                styleObjectToStylesheet({
+                  padding: "8px",
+                  border: "1px solid #ccc",
+                  borderRadius: "8px",
+                  backgroundColor: isStartButtonHovered.val ? "#eee" : "#fff",
+                  color: "#000",
+                  cursor: "pointer",
+                }),
+              onmouseenter: () => {
+                isStartButtonHovered.val = true;
+              },
+              onmouseleave: () => {
+                isStartButtonHovered.val = false;
+              },
+              onclick: async () => {
+                if (state.isCapturing) {
+                  await stopCapturer();
+                } else {
+                  await startCapturer(p);
+                }
+              },
+            },
+            () => (state.isCapturing ? "Stop" : "Start"),
+          ),
+        ]
+      : [
+          div("Error: Unsupported browser"),
+          a(
+            {
+              href: "https://developer.mozilla.org/en-US/docs/Web/API/File_System_API#browser_compatibility",
+              style: styleObjectToStylesheet({
+                color: "#88f",
+              }),
+              target: "_blank",
+            },
+            "List of supported browsers",
+          ),
+        ],
   );
   van.add(document.body, ui);
   internalState.p = p;
