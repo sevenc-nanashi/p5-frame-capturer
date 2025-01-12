@@ -1,6 +1,6 @@
 {
   "name": "p5-frame-capturer",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "Capture p5.js frames and saves into your local file system",
   "packageManager": "pnpm@9.15.3",
   "author": {
