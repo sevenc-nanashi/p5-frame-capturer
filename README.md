@@ -64,7 +64,7 @@ Starts capturing frames from the p5.js sketch.
 - `format`: Image format to save the frames. Default is `png`.
 - `frames`: Number of frames to capture. You can use `undefined` to capture frames indefinitely until `stopCapturing()` is called. Default is `undefined`.
 
-### `startCapturer()`
+### `stopCapturer()`
 
 Stops capturing frames.
 
