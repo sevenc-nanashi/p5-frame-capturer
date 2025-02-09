@@ -23,7 +23,8 @@
     "dev:main": "pkgroll -w --env.NODE_ENV=development",
     "dev:sub": "node --experimental-strip-types ./build.ts --watch",
     "dev": "run-p dev:main dev:sub",
-    "webp": "node --experimental-strip-types ./webp/build.ts"
+    "webp:build": "node --experimental-strip-types ./webp/build.ts",
+    "webp:notice": "cd webp && cargo about generate about.hbs > ../NOTICE.md"
   },
   "exports": {
     ".": {
@@ -32,9 +33,7 @@
     }
   },
   "keywords": [],
-  "files": [
-    "dist"
-  ],
+  "files": ["dist", "./NOTICE.md", "./README.md", "./LICENSE"],
   "license": "MIT",
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",

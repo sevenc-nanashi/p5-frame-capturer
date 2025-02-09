@@ -1,6 +1,6 @@
+import { promises as fs } from "node:fs";
 import * as rolldown from "rolldown";
 import * as zx from "zx";
-import { promises as fs } from "node:fs";
 
 const { $ } = zx;
 

@@ -1,6 +1,6 @@
 import {
-  initSync,
   encode as __do_not_use_this_directly_encode,
+  initSync,
 } from "./webpEncoder.js";
 
 let encoderModulePromise: Promise<{

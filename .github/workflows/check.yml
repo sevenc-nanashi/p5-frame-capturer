@@ -19,8 +19,25 @@ jobs:
           node-version: "22"
           cache: "pnpm"
 
+      - name: Setup Rust
+        run: |
+          rustup component add clippy
+          rustup component add rustfmt
+
+      - name: Install cargo-binstall
+        uses: cargo-bins/cargo-binstall@main
+
+      - name: Install wasm-pack
+        run: cargo binstall wasm-pack
+
       - name: Install dependencies
         run: pnpm install
 
       - name: Check
         run: pnpm run lint
+
+      - name: Check Rust
+        working-directory: webp
+        run: |
+          cargo clippy --all-targets --all-features -- -D warnings
+          cargo fmt --all -- --check

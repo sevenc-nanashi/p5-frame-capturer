@@ -80,3 +80,7 @@ Current state of the capturer.
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Acknowledgements
+
+The WebP encoder is built with Rust. The licenses of used crates are available in the [NOTICE.md](NOTICE.md) file.
