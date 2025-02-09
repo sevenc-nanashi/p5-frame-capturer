@@ -20,6 +20,11 @@ const options = {
     format: "umd",
   },
   treeshake: true,
+  define: {
+    "process.env.NODE_ENV": JSON.stringify(
+      isWatch ? "development" : "production",
+    ),
+  },
 } satisfies rolldown.BuildOptions;
 
 if (isWatch) {

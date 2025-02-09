@@ -142,3 +142,8 @@ dist
 .svelte-kit
 
 # End of https://www.toptal.com/developers/gitignore/api/node
+
+/src/webpEncoder.js
+/src/webpEncoder.d.ts
+/src/webpEncoder.wasm.js
+/src/webpEncoder.wasm.d.ts

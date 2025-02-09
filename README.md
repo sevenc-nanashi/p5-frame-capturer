@@ -49,6 +49,7 @@ List of supported image formats.
 - `png`
 - `jpeg`
 - `webp`
+- `webpLossless`
 
 ### `attachCapturerUi(p5Instance: p5)`
 

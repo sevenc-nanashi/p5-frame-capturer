@@ -17,12 +17,13 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "biome check",
     "lint:fix": "biome check --write --unsafe",
-    "build:main": "pkgroll",
+    "build:main": "pkgroll --env.NODE_ENV=production --minify",
     "build:sub": "node --experimental-strip-types ./build.ts",
     "build": "run-p build:*",
-    "dev:main": "pkgroll -w",
+    "dev:main": "pkgroll -w --env.NODE_ENV=development",
     "dev:sub": "node --experimental-strip-types ./build.ts --watch",
-    "dev": "run-p dev:main dev:sub"
+    "dev": "run-p dev:main dev:sub",
+    "webp": "node --experimental-strip-types ./webp/build.ts"
   },
   "exports": {
     ".": {
@@ -31,7 +32,9 @@
     }
   },
   "keywords": [],
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "license": "MIT",
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
@@ -41,7 +44,8 @@
     "npm-run-all2": "^7.0.2",
     "pkgroll": "^2.6.1",
     "rolldown": "1.0.0-beta.1",
-    "typescript": "^5.7.3"
+    "typescript": "^5.7.3",
+    "zx": "^8.3.2"
   },
   "dependencies": {
     "vanjs-core": "^1.5.3"

@@ -1,6 +1,7 @@
 import type * as CSS from "csstype";
 import type p5 from "p5";
 import van from "vanjs-core";
+import { encodeWebPLossless } from "./webp.ts";
 
 const { div, a, button, select, option } = van.tags;
 
@@ -18,7 +19,12 @@ const styleObjectToStylesheet = (styleObjects: CSS.Properties) => {
 };
 
 /** Supported image formats */
-export const supportedImageFormats = ["png", "jpg", "webp"] as const;
+export const supportedImageFormats = [
+  "png",
+  "jpg",
+  "webp",
+  "webpLossless",
+] as const;
 
 /** Supported image formats */
 export type SupportedImageFormat = (typeof supportedImageFormats)[number];
@@ -31,10 +37,26 @@ export type Options = {
   frames: number | undefined;
 };
 
-const formatToMimeType: Record<SupportedImageFormat, string> = {
-  png: "image/png",
-  jpg: "image/jpeg",
-  webp: "image/webp",
+const formatInfos = {
+  png: {
+    label: "PNG",
+    mimeType: "image/png",
+    extension: "png",
+  },
+  jpg: {
+    label: "JPEG",
+    mimeType: "image/jpeg",
+    extension: "jpg",
+  },
+  webp: {
+    label: "WebP",
+    mimeType: "image/webp",
+    extension: "webp",
+  },
+  webpLossless: {
+    label: "WebP (lossless)",
+    extension: "webp",
+  },
 };
 
 /** State of the capturer */
@@ -71,14 +93,32 @@ const internalState = {
 };
 
 async function postDraw() {
+  if (!internalState.p) {
+    return;
+  }
   // @ts-expect-error undocumented
   const canvas: HTMLCanvasElement = internalState.p.canvas;
+  const ctx: CanvasRenderingContext2D = internalState.p.drawingContext;
   const frameCount = state.frameCount;
-  const blob = await new Promise<Blob | null>((resolve) => {
-    canvas.toBlob((blob) => {
-      resolve(blob);
-    }, formatToMimeType[internalState.format.val]);
-  });
+  let blob: Uint8Array | undefined;
+  switch (internalState.format.val) {
+    case "webpLossless": {
+      blob = await encodeWebPLossless(
+        ctx.getImageData(0, 0, canvas.width, canvas.height),
+      );
+      break;
+    }
+    default: {
+      const mimeType = formatInfos[internalState.format.val].mimeType;
+      blob = await new Promise<Blob | undefined>((resolve) =>
+        canvas.toBlob((blob) => {
+          resolve(blob ?? undefined);
+        }, mimeType),
+      )
+        .then((blob) => blob?.arrayBuffer())
+        .then((buffer) => buffer && new Uint8Array(buffer));
+    }
+  }
   if (!blob) {
     return;
   }
@@ -88,7 +128,7 @@ async function postDraw() {
   if (!internalState.directoryHandle) {
     return;
   }
-  const fileName = `frame-${frameCount.toString().padStart(5, "0")}.${internalState.format.val}`;
+  const fileName = `frame-${frameCount.toString().padStart(5, "0")}.${formatInfos[internalState.format.val].extension}`;
   const fileHandle = await internalState.directoryHandle.getFileHandle(
     fileName,
     {
@@ -206,6 +246,7 @@ export async function attachCapturerUi(p: p5) {
             "Format: ",
             select(
               {
+                enabled: () => !state.isCapturing,
                 onchange: (e: Event) => {
                   const target = e.target as HTMLSelectElement;
                   internalState.format.val = target.value as Options["format"];
@@ -217,7 +258,7 @@ export async function attachCapturerUi(p: p5) {
                     value: format,
                     selected: internalState.format.val === format,
                   },
-                  format,
+                  formatInfos[format].label,
                 ),
               ),
             ),
