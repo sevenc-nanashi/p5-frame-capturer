@@ -37,12 +37,15 @@ export type Options = {
   frames: number | undefined;
   /** Parallel write limit. Default: 8, set to 0 to disable limit */
   parallelWriteLimit: number;
+  /** A callback that is called after all frames are captured. Will not be called if frames is undefined */
+  onFinished?: () => void;
 };
 
 const defaultOptions: Options = {
   format: "png",
   frames: undefined,
   parallelWriteLimit: 8,
+  onFinished: undefined,
 };
 
 const formatInfos = {
@@ -111,6 +114,8 @@ const internalState = {
     currentIndex: 0,
     buffer: [] as number[],
   },
+
+  onFinished: defaultOptions.onFinished,
 
   isDragging: van.state(false),
   positionX: van.state(8),
@@ -203,10 +208,11 @@ async function postDraw() {
 
   if (state.frames && state.frameCount >= state.frames) {
     console.log(`${logPrefix} Finished capturing`);
+    internalState.onFinished?.();
     await stopCapturer();
+  } else {
+    internalState.p?.redraw();
   }
-
-  internalState.p?.redraw();
 }
 
 const onMouseMove = (e: MouseEvent) => {
@@ -440,6 +446,7 @@ export async function startCapturer(p: p5, options: Partial<Options> = {}) {
     lastFrameCount: 0,
     lastTime: Date.now(),
   };
+  internalState.onFinished = realOptions.onFinished;
 
   console.log(`${logPrefix} Started capturing`);
   console.log(

@@ -70,6 +70,7 @@ Starts capturing frames from the p5.js sketch.
 - `format`: Image format to save the frames. Default: `png`.
 - `frames`: Number of frames to capture. You can use `undefined` or `0` to capture frames indefinitely until `stopCapturing()` is called. Default: `undefined`.
 - `parallelWriteLimit`: Maximum number of frames to write in parallel. You can use `0` to remove the limit, but this may cause your browser to crash. Default: `8`.
+- `onFinished`: Callback function to call when capturing is finished. Will not be called if `frames` is `undefined`. Default: `undefined`.
 
 ### `stopCapturer()`
 
@@ -83,6 +84,22 @@ Current state of the capturer.
 - `frameCount`: Number of frames captured so far.
 - `frames`: Number of frames to capture, or `0` if capturing indefinitely.
 - `fps`: Frames captured per second.
+
+## Hints
+
+- You can use `onEnd` callback and [ntfy.sh](https://ntfy.sh) to get a notification when capturing is finished.
+
+```ts
+startCapturer(p, {
+  onFinished: () =>
+    fetch("https://ntfy.sh/your_topic_name", {
+      method: "POST",
+      body: "All frames are captured!",
+      // This line is required to avoid CORS error
+      mode: "no-cors",
+    }),
+});
+```
 
 ## License
 
