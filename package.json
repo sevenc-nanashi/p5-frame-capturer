@@ -25,7 +25,8 @@
     "dev:sub": "node --experimental-strip-types ./build.ts --watch",
     "dev": "run-p dev:main dev:sub",
     "webp:build": "node --experimental-strip-types ./webp/build.ts",
-    "webp:notice": "cd webp && cargo about generate about.hbs > ../NOTICE.md"
+    "webp:notice": "cd webp && cargo about generate about.hbs > ../NOTICE.md",
+    "prepublishOnly": "run-s webp:build webp:notice build"
   },
   "exports": {
     ".": {
