@@ -4,8 +4,10 @@
 [![npm downloads](https://img.shields.io/npm/dm/p5-frame-capturer)](https://npm.chart.dev/p5-frame-capturer)
 [![license](https://img.shields.io/github/license/sevenc-nanashi/p5-frame-capturer)](https://github.com/sevenc-nanashi/p5-frame-capturer/blob/main/LICENSE)
 
-This is a simple tool to capture frames from a p5.js sketch and save them into your local file system.
-It is useful for creating animations or exporting frames for further processing.
+Demo: [ESModule Mode](https://sevenc7c.com/p5-frame-capturer/) ([Source: /example](https://github.com/sevenc-nanashi/p5-frame-capturer/tree/main/example)) | [UMD Mode](https://editor.p5js.org/sevenc-nanashi/sketches/WFj8ITs0K)
+
+This is a simple tool to capture frames from a p5.js sketch and save them into your local file system.\
+It is useful for creating animations or exporting frames for further processing.\
 
 > [!WARNING]
 > This package uses [File System Access API](https://developer.mozilla.org/en-US/docs/Web/API/File_System_API), so it is only available in Chromium-based browsers.
