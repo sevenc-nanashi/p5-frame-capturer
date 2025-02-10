@@ -35,6 +35,7 @@ const options = {
     "process.env.NODE_ENV": JSON.stringify(
       isWatch ? "development" : "production",
     ),
+    "import.meta.url": '""',
   },
 } satisfies rolldown.BuildOptions;
 
