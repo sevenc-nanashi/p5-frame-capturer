@@ -43,7 +43,7 @@ jobs:
           pnpm run webp:build
           pnpm run build
           cd example
-          pnpm run build
+          pnpm run build --base /p5-frame-capturer
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
