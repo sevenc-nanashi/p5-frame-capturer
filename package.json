@@ -33,7 +33,12 @@
     }
   },
   "keywords": [],
-  "files": ["dist", "./NOTICE.md", "./README.md", "./LICENSE"],
+  "files": [
+    "dist",
+    "./NOTICE.md",
+    "./README.md",
+    "./LICENSE"
+  ],
   "license": "MIT",
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
@@ -43,6 +48,8 @@
     "npm-run-all2": "^7.0.2",
     "pkgroll": "^2.6.1",
     "rolldown": "1.0.0-beta.1",
+    "rollup-plugin-esbuild-minify": "^1.2.0",
+    "rollup-plugin-header": "^1.0.0",
     "typescript": "^5.7.3",
     "zx": "^8.3.2"
   },

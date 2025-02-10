@@ -37,6 +37,12 @@ importers:
       rolldown:
         specifier: 1.0.0-beta.1
         version: 1.0.0-beta.1(@babel/runtime@7.26.0)
+      rollup-plugin-esbuild-minify:
+        specifier: ^1.2.0
+        version: 1.2.0(rollup@4.30.1)
+      rollup-plugin-header:
+        specifier: ^1.0.0
+        version: 1.0.0
       typescript:
         specifier: ^5.7.3
         version: 5.7.3
@@ -753,6 +759,15 @@ packages:
       '@babel/runtime':
         optional: true
 
+  rollup-plugin-esbuild-minify@1.2.0:
+    resolution: {integrity: sha512-M112JoRC8oUHKHQcXUQzSwXEnvriXtpy4rnaeqt/ZeknVbjymhdZRRUf+2fdR3k4jOQCZas0N4u1U2xbtRTrbg==}
+    engines: {node: '>= 14.18'}
+    peerDependencies:
+      rollup: ^2 || ^3 || ^4
+
+  rollup-plugin-header@1.0.0:
+    resolution: {integrity: sha512-7NN7QfHg2jG4yifEz/DHS3vhtGnh43nZCH7oCsCvS9iYeu+kgqSyqWdNutb2ExWh+nIvRSzDYn4KndTWAmZOeA==}
+
   rollup@4.30.1:
     resolution: {integrity: sha512-mlJ4glW020fPuLi7DkM/lN97mYEZGWeqBnrljzN0gs7GLctqX3lNWxKQ7Gl712UAX+6fog/L3jh4gb7R6aVi3w==}
     engines: {node: '>=18.0.0', npm: '>=8.0.0'}
@@ -1416,6 +1431,13 @@ snapshots:
       '@rolldown/binding-win32-arm64-msvc': 1.0.0-beta.1
       '@rolldown/binding-win32-ia32-msvc': 1.0.0-beta.1
       '@rolldown/binding-win32-x64-msvc': 1.0.0-beta.1
+
+  rollup-plugin-esbuild-minify@1.2.0(rollup@4.30.1):
+    dependencies:
+      esbuild: 0.24.2
+      rollup: 4.30.1
+
+  rollup-plugin-header@1.0.0: {}
 
   rollup@4.30.1:
     dependencies:
