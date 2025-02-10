@@ -3,7 +3,7 @@ import type p5 from "p5";
 import van from "vanjs-core";
 import { encodeWebPLossless } from "./webp.ts";
 
-const { div, a, button, select, option } = van.tags;
+const { div, a, button, select, option, input } = van.tags;
 
 const logPrefix = "[p5-frame-capturer]";
 
@@ -33,8 +33,16 @@ export type SupportedImageFormat = (typeof supportedImageFormats)[number];
 export type Options = {
   /** Image format */
   format: (typeof supportedImageFormats)[number];
-  /** Number of frames to capture, or undefined to capture until stopped */
+  /** Number of frames to capture. Set to undefined or 0 to capture until stopped */
   frames: number | undefined;
+  /** Parallel write limit. Default: 8, set to 0 to disable limit */
+  parallelWriteLimit: number;
+};
+
+const defaultOptions: Options = {
+  format: "png",
+  frames: undefined,
+  parallelWriteLimit: 8,
 };
 
 const formatInfos = {
@@ -73,17 +81,36 @@ export const state = {
   get frames() {
     return internalState.frames.val;
   },
+  /** Frames captured per second */
+  get fps() {
+    return internalState.fps.val;
+  },
 };
 
+const fpsSamples = 10;
 const internalState = {
   isCapturing: van.state(false),
   frameCount: van.state(0),
-  frames: van.state<number | undefined>(undefined),
+  frames: van.state<number>(0),
+
+  parallelWriteLimit: van.state(defaultOptions.parallelWriteLimit),
 
   directoryHandle: undefined as FileSystemDirectoryHandle | undefined,
-  format: van.state<SupportedImageFormat>("png"),
+  format: van.state<SupportedImageFormat>(defaultOptions.format),
   p: undefined as p5 | undefined,
   wasLooping: false,
+
+  numCurrentWrites: 0,
+
+  fps: van.state(0),
+  fpsInfo: {
+    lastFrameCount: 0,
+    lastTime: Date.now(),
+  },
+  fpsBuffer: {
+    currentIndex: 0,
+    buffer: [] as number[],
+  },
 
   isDragging: van.state(false),
   positionX: van.state(8),
@@ -128,6 +155,17 @@ async function postDraw() {
   if (!internalState.directoryHandle) {
     return;
   }
+  if (
+    internalState.parallelWriteLimit.val > 0 &&
+    internalState.numCurrentWrites >= internalState.parallelWriteLimit.val
+  ) {
+    while (
+      internalState.numCurrentWrites >= internalState.parallelWriteLimit.val
+    ) {
+      await new Promise<void>((resolve) => setTimeout(resolve, 0));
+    }
+  }
+
   const fileName = `frame-${frameCount.toString().padStart(5, "0")}.${formatInfos[internalState.format.val].extension}`;
   const fileHandle = await internalState.directoryHandle.getFileHandle(
     fileName,
@@ -136,12 +174,34 @@ async function postDraw() {
     },
   );
   const writable = await fileHandle.createWritable();
-  await writable.write(blob);
-  writable.close();
+  internalState.numCurrentWrites++;
+  void writable
+    .write(blob)
+    .then(() => writable.close())
+    .then(() => {
+      internalState.numCurrentWrites--;
+    });
   console.log(`${logPrefix} Wrote frame ${frameCount}`);
   internalState.frameCount.val++;
+  if (internalState.fpsInfo.lastTime + 1000 < Date.now()) {
+    const newFps =
+      (internalState.frameCount.val - internalState.fpsInfo.lastFrameCount) /
+      ((Date.now() - internalState.fpsInfo.lastTime) / 1000);
+    internalState.fpsBuffer.buffer[internalState.fpsBuffer.currentIndex] =
+      newFps;
+    internalState.fpsBuffer.currentIndex++;
+    if (internalState.fpsBuffer.currentIndex >= fpsSamples) {
+      internalState.fpsBuffer.currentIndex = 0;
+    }
 
-  if (state.frames !== undefined && state.frameCount >= state.frames) {
+    internalState.fps.val =
+      internalState.fpsBuffer.buffer.reduce((acc, val) => acc + val, 0) /
+      internalState.fpsBuffer.buffer.length;
+    internalState.fpsInfo.lastTime = Date.now();
+    internalState.fpsInfo.lastFrameCount = internalState.frameCount.val;
+  }
+
+  if (state.frames && state.frameCount >= state.frames) {
     console.log(`${logPrefix} Finished capturing`);
     await stopCapturer();
   }
@@ -228,12 +288,29 @@ export async function attachCapturerUi(p: p5) {
           div("Status: ", () => (state.isCapturing ? "Capturing" : "Ready")),
           div("Frames: ", () => {
             if (!state.isCapturing) {
-              return "-";
+              return input({
+                type: "number",
+                min: "0",
+                value: () =>
+                  internalState.frames.val === undefined
+                    ? ""
+                    : internalState.frames.val.toString(),
+                disabled: () => state.isCapturing,
+                onchange: (e: Event) => {
+                  const target = e.target as HTMLInputElement;
+                  internalState.frames.val = Number.parseInt(target.value, 10);
+                },
+              });
             }
-            if (state.frames === undefined) {
-              return `${state.frameCount}`;
+            if (!state.frames) {
+              return `${state.frameCount} (${state.fps ? state.fps.toFixed(2) : "-"} frames/s)`;
             }
-            return `${state.frameCount}/${state.frames}`;
+            return `${state.frameCount}/${state.frames} (
+              ${state.fps ? state.fps.toFixed(2) : "-"} frames/s, ETA: ${
+                state.fps
+                  ? formatSeconds((state.frames - state.frameCount) / state.fps)
+                  : "-"
+              })`;
           }),
           div(
             {
@@ -246,7 +323,7 @@ export async function attachCapturerUi(p: p5) {
             "Format: ",
             select(
               {
-                enabled: () => !state.isCapturing,
+                disabled: () => state.isCapturing,
                 onchange: (e: Event) => {
                   const target = e.target as HTMLSelectElement;
                   internalState.format.val = target.value as Options["format"];
@@ -262,6 +339,29 @@ export async function attachCapturerUi(p: p5) {
                 ),
               ),
             ),
+          ),
+          div(
+            {
+              style: () =>
+                styleObjectToStylesheet({
+                  display: "flex",
+                  gap: "4px",
+                }),
+            },
+            "Parallel write limit: ",
+            input({
+              type: "number",
+              min: "0",
+              value: () => internalState.parallelWriteLimit.val.toString(),
+              disabled: () => state.isCapturing,
+              onchange: (e: Event) => {
+                const target = e.target as HTMLInputElement;
+                internalState.parallelWriteLimit.val = Number.parseInt(
+                  target.value,
+                  10,
+                );
+              },
+            }),
           ),
 
           button(
@@ -285,7 +385,11 @@ export async function attachCapturerUi(p: p5) {
                 if (state.isCapturing) {
                   await stopCapturer();
                 } else {
-                  await startCapturer(p);
+                  await startCapturer(p, {
+                    format: internalState.format.val,
+                    frames: internalState.frames.val,
+                    parallelWriteLimit: internalState.parallelWriteLimit.val,
+                  });
                 }
               },
             },
@@ -313,8 +417,7 @@ export async function attachCapturerUi(p: p5) {
 /** Start capturing frames */
 export async function startCapturer(p: p5, options: Partial<Options> = {}) {
   const realOptions = {
-    format: "png",
-    frames: undefined,
+    ...defaultOptions,
     ...options,
   } satisfies Options;
   if (!supportedImageFormats.includes(realOptions.format)) {
@@ -329,11 +432,22 @@ export async function startCapturer(p: p5, options: Partial<Options> = {}) {
 
   internalState.isCapturing.val = true;
   internalState.frameCount.val = 0;
-  internalState.frames.val = realOptions.frames;
+  internalState.frames.val = realOptions.frames ?? 0;
   internalState.p = p;
   internalState.directoryHandle = handle;
+  internalState.fps.val = 0;
+  internalState.fpsInfo = {
+    lastFrameCount: 0,
+    lastTime: Date.now(),
+  };
 
   console.log(`${logPrefix} Started capturing`);
+  console.log(
+    `${logPrefix} format=%o, frames=%o, parallelWriteLimit=%o`,
+    realOptions.format,
+    realOptions.frames,
+    realOptions.parallelWriteLimit,
+  );
 
   internalState.wasLooping = p.isLooping();
   p.noLoop();
@@ -353,3 +467,12 @@ export async function stopCapturer() {
   // @ts-expect-error undocumented
   internalState.p?.unregisterMethod("post", postDraw);
 }
+
+const formatSeconds = (seconds: number) => {
+  if (seconds < 60) {
+    return `${seconds.toFixed(2)}s`;
+  }
+  const minutes = Math.floor(seconds / 60);
+  const remainingSeconds = seconds % 60;
+  return `${minutes}m ${remainingSeconds.toFixed(2)}s`;
+};

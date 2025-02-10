@@ -53,6 +53,9 @@ List of supported image formats.
 - `webp`
 - `webpLossless`
 
+> [!NOTE]\
+> `webpLossless` uses wasm-based encoder, so it might be slower than other formats.
+
 ### `attachCapturerUi(p5Instance: p5)`
 
 Attaches the frame capturer UI to the p5.js sketch.
@@ -64,8 +67,9 @@ Starts capturing frames from the p5.js sketch.
 
 #### Options
 
-- `format`: Image format to save the frames. Default is `png`.
-- `frames`: Number of frames to capture. You can use `undefined` to capture frames indefinitely until `stopCapturing()` is called. Default is `undefined`.
+- `format`: Image format to save the frames. Default: `png`.
+- `frames`: Number of frames to capture. You can use `undefined` or `0` to capture frames indefinitely until `stopCapturing()` is called. Default: `undefined`.
+- `parallelWriteLimit`: Maximum number of frames to write in parallel. You can use `0` to remove the limit, but this may cause your browser to crash. Default: `8`.
 
 ### `stopCapturer()`
 
@@ -77,7 +81,8 @@ Current state of the capturer.
 
 - `isCapturing`: Whether the capturer is capturing frames.
 - `frameCount`: Number of frames captured so far.
-- `frames`: Number of frames to capture, or `undefined` if capturing indefinitely.
+- `frames`: Number of frames to capture, or `0` if capturing indefinitely.
+- `fps`: Frames captured per second.
 
 ## License
 
