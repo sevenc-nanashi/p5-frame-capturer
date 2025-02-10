@@ -1,9 +1,9 @@
 import * as rolldown from "rolldown";
-import packageJson from "./package.json" with { type: "json" };
-// @ts-expect-error
-import { header } from "rollup-plugin-header";
 // @ts-expect-error
 import { minify as esbuildMinify } from "rollup-plugin-esbuild-minify";
+// @ts-expect-error
+import { header } from "rollup-plugin-header";
+import packageJson from "./package.json" with { type: "json" };
 
 const isWatch = process.argv.includes("--watch");
 const banner = [

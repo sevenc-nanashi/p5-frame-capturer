@@ -8,7 +8,8 @@ let encoderModulePromise: Promise<{
 }> | null = null;
 
 const loadEncoderModule = async () => {
-  const { default: wasm } = await import("./webpEncoder.wasm.js");
+  const { default: getWasm } = await import("./webpEncoder.wasm.js");
+  const wasm = await getWasm();
   initSync({ module: wasm.buffer });
   return {
     encode: __do_not_use_this_directly_encode,

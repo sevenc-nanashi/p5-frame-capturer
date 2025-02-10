@@ -17,9 +17,10 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "biome check",
     "lint:fix": "biome check --write --unsafe",
+    "clean": "rm -rf dist",
     "build:main": "pkgroll --env.NODE_ENV=production --minify",
     "build:sub": "node --experimental-strip-types ./build.ts",
-    "build": "run-p build:*",
+    "build": "run-s clean build:main build:sub",
     "dev:main": "pkgroll -w --env.NODE_ENV=development",
     "dev:sub": "node --experimental-strip-types ./build.ts --watch",
     "dev": "run-p dev:main dev:sub",
@@ -33,12 +34,7 @@
     }
   },
   "keywords": [],
-  "files": [
-    "dist",
-    "./NOTICE.md",
-    "./README.md",
-    "./LICENSE"
-  ],
+  "files": ["dist", "./NOTICE.md", "./README.md", "./LICENSE"],
   "license": "MIT",
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
