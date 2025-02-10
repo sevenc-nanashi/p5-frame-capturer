@@ -440,6 +440,7 @@ export async function startCapturer(p: p5, options: Partial<Options> = {}) {
   internalState.frameCount.val = 0;
   internalState.frames.val = realOptions.frames ?? 0;
   internalState.p = p;
+  internalState.format.val = realOptions.format;
   internalState.directoryHandle = handle;
   internalState.fps.val = 0;
   internalState.fpsInfo = {
