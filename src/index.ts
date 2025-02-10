@@ -438,15 +438,17 @@ export async function startCapturer(p: p5, options: Partial<Options> = {}) {
 
   internalState.isCapturing.val = true;
   internalState.frameCount.val = 0;
-  internalState.frames.val = realOptions.frames ?? 0;
   internalState.p = p;
-  internalState.format.val = realOptions.format;
   internalState.directoryHandle = handle;
   internalState.fps.val = 0;
   internalState.fpsInfo = {
     lastFrameCount: 0,
     lastTime: Date.now(),
   };
+
+  internalState.format.val = realOptions.format;
+  internalState.frames.val = realOptions.frames ?? 0;
+  internalState.parallelWriteLimit.val = realOptions.parallelWriteLimit;
   internalState.onFinished = realOptions.onFinished;
 
   console.log(`${logPrefix} Started capturing`);
