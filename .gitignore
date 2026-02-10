@@ -145,5 +145,6 @@ dist
 
 /src/webpEncoder.js
 /src/webpEncoder.d.ts
+/src/webpEncoder.js.map
 /src/webpEncoder.wasm.js
 /src/webpEncoder.wasm.d.ts
