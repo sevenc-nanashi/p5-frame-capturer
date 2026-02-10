@@ -56,8 +56,9 @@ export default defineConfig([
     minify: true,
     platform: "browser",
     treeshake: true,
-    noExternal: ["vanjs-core"],
     skipNodeModulesBundle: false,
+    noExternal: ["vanjs-core"],
+    inlineOnly: ["vanjs-core"],
     define: {
       "import.meta": "{}",
     },
