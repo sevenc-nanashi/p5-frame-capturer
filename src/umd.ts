@@ -10,8 +10,5 @@ declare global {
 
 window.p5FrameCapturer = p5FrameCapturer;
 if (window.p5) {
-  // @ts-expect-error Undocumented
-  window.p5.prototype.registerMethod("init", function (this: p5) {
-    p5FrameCapturer.attachCapturerUi(this);
-  });
+  window.p5.registerAddon(p5FrameCapturer.p5FrameCapturer());
 }

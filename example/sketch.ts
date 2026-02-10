@@ -1,8 +1,8 @@
 import p5 from "p5";
-import { attachCapturerUi, state } from "p5-frame-capturer";
+import { p5FrameCapturer, state } from "p5-frame-capturer";
 
+p5.registerAddon(p5FrameCapturer());
 const sketch = (p: p5) => {
-  attachCapturerUi(p);
   p.setup = () => {
     p.createCanvas(400, 400);
   };

@@ -7,6 +7,8 @@ const { div, a, button, select, option, input } = van.tags;
 
 const logPrefix = "[p5-frame-capturer]";
 
+const attachedSymbol = Symbol("p5-frame-capturer-installed");
+
 const styleObjectToStylesheet = (styleObjects: CSS.Properties) => {
   return Object.entries(styleObjects)
     .map(([key, value]) => {
@@ -130,14 +132,32 @@ async function postDraw() {
   }
   // @ts-expect-error undocumented
   const canvas: HTMLCanvasElement = internalState.p.canvas;
-  const ctx: CanvasRenderingContext2D = internalState.p.drawingContext;
+  const ctx = internalState.p.drawingContext;
   const frameCount = state.frameCount;
   let blob: Uint8Array | undefined;
   switch (internalState.format.val) {
     case "webpLossless": {
-      blob = await encodeWebPLossless(
-        ctx.getImageData(0, 0, canvas.width, canvas.height),
-      );
+      if (ctx instanceof CanvasRenderingContext2D) {
+        blob = await encodeWebPLossless(
+          canvas.width,
+          canvas.height,
+          new Uint8Array(
+            ctx.getImageData(0, 0, canvas.width, canvas.height).data,
+          ),
+        );
+      } else {
+        const imageData = new Uint8Array(canvas.width * canvas.height * 4);
+        ctx.readPixels(
+          0,
+          0,
+          canvas.width,
+          canvas.height,
+          ctx.RGBA,
+          ctx.UNSIGNED_BYTE,
+          imageData,
+        );
+        blob = await encodeWebPLossless(canvas.width, canvas.height, imageData);
+      }
       break;
     }
     default: {
@@ -157,9 +177,6 @@ async function postDraw() {
   if (!state.isCapturing) {
     return;
   }
-  if (!internalState.directoryHandle) {
-    return;
-  }
   if (
     internalState.parallelWriteLimit.val > 0 &&
     internalState.numCurrentWrites >= internalState.parallelWriteLimit.val
@@ -171,6 +188,9 @@ async function postDraw() {
     }
   }
 
+  if (!internalState.directoryHandle) {
+    return;
+  }
   const fileName = `frame-${frameCount.toString().padStart(5, "0")}.${formatInfos[internalState.format.val].extension}`;
   const fileHandle = await internalState.directoryHandle.getFileHandle(
     fileName,
@@ -181,12 +201,12 @@ async function postDraw() {
   const writable = await fileHandle.createWritable();
   internalState.numCurrentWrites++;
   void writable
-    .write(blob)
+    .write(blob as Uint8Array<ArrayBuffer>)
     .then(() => writable.close())
     .then(() => {
+      console.log(`${logPrefix} Frame ${frameCount} saved as ${fileName}`);
       internalState.numCurrentWrites--;
     });
-  console.log(`${logPrefix} Wrote frame ${frameCount}`);
   internalState.frameCount.val++;
   if (internalState.fpsInfo.lastTime + 1000 < Date.now()) {
     const newFps =
@@ -238,6 +258,15 @@ const onMoveEnd = () => {
 
 /** Attach the capturer UI to the p5 instance */
 export async function attachCapturerUi(p: p5) {
+  if (!p) {
+    throw new Error("p5 instance is required");
+  }
+  // @ts-expect-error My own property
+  if (!p[attachedSymbol]) {
+    throw new Error(
+      "p5 instance is not patched. Did you forget to register the p5FrameCapturer addon?",
+    );
+  }
   if (internalState.p) {
     throw new Error("UI already attached!");
   }
@@ -422,6 +451,12 @@ export async function attachCapturerUi(p: p5) {
 
 /** Start capturing frames */
 export async function startCapturer(p: p5, options: Partial<Options> = {}) {
+  if (!(attachedSymbol in p)) {
+    throw new Error(
+      "p5 instance is not patched. Did you forget to register the p5FrameCapturer addon?",
+    );
+  }
+
   const realOptions = {
     ...defaultOptions,
     ...options,
@@ -461,21 +496,19 @@ export async function startCapturer(p: p5, options: Partial<Options> = {}) {
 
   internalState.wasLooping = p.isLooping();
   p.noLoop();
-  // @ts-expect-error undocumented
-  p.registerMethod("post", postDraw);
+  p.redraw();
 }
 
 /** Stop capturing frames */
 export async function stopCapturer() {
-  console.log(`${logPrefix} Stopping capturer`);
+  if (!internalState.isCapturing.val) {
+    return;
+  }
   internalState.isCapturing.val = false;
   internalState.directoryHandle = undefined;
   if (internalState.wasLooping) {
     internalState.p?.loop();
   }
-
-  // @ts-expect-error undocumented
-  internalState.p?.unregisterMethod("post", postDraw);
 }
 
 const formatSeconds = (seconds: number) => {
@@ -486,3 +519,54 @@ const formatSeconds = (seconds: number) => {
   const remainingSeconds = seconds % 60;
   return `${minutes}m ${remainingSeconds.toFixed(2)}s`;
 };
+type Lifecycles = Record<
+  "presetup" | "postsetup" | "predraw" | "postdraw" | "remove",
+  (this: p5) => void | Promise<void>
+>;
+
+/** Options for the p5 addon */
+export type AddonOptions = {
+  /** Whether to automatically attach the UI. Default: true */
+  ui?: boolean;
+};
+/**
+ * Install p5-frame-capturer into the p5 instance lifecycles.
+ * Use p5.registerAddon to register this function.
+ *
+ * @example
+ * ```typescript
+ * import p5 from "p5";
+ * import { p5FrameCapturer } from "p5-frame-capturer";
+ *
+ * p5.registerAddon(p5FrameCapturer());
+ * ```
+ */
+export function p5FrameCapturer(
+  options?: AddonOptions,
+  __detect_wrong_usage__?: never,
+): (p5: p5, fn: typeof p5, lifecycles: Lifecycles) => void {
+  if (__detect_wrong_usage__ !== undefined) {
+    throw new Error(
+      "Detected wrong usage! Please use `p5.registerAddon(p5FrameCapturer())` (note the extra parentheses) instead.",
+    );
+  }
+  const realOptions: AddonOptions = {
+    ui: true,
+    ...options,
+  };
+  return (p5: p5, fn: typeof p5, lifecycles: Lifecycles) => {
+    // @ts-expect-error My own property
+    fn[attachedSymbol] = true;
+    if (realOptions.ui) {
+      lifecycles.postsetup = async function () {
+        await attachCapturerUi(this);
+      };
+    }
+    lifecycles.postdraw = async function () {
+      await postDraw();
+    };
+    lifecycles.remove = async function () {
+      await stopCapturer();
+    };
+  };
+}

@@ -33,11 +33,11 @@ npm install p5-frame-capturer
 2. Import the package in your p5.js sketch:
 
 ```javascript
-import { attachCapturerUi } from 'p5-frame-capturer';
+import { p5FrameCapturer } from 'p5-frame-capturer';
 import p5 from 'p5';
 
+p5.registerAddon(p5FrameCapturer());
 const p = new p5((sketch) => /* ... */);
-attachCapturerUi(p);
 ```
 
 ## API

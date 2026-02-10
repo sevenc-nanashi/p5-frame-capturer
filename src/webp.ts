@@ -17,17 +17,15 @@ const loadEncoderModule = async () => {
 };
 
 export const encodeWebPLossless = async (
-  imageData: ImageData,
+  width: number,
+  height: number,
+  imageData: Uint8Array,
 ): Promise<Uint8Array> => {
   if (!encoderModulePromise) {
     encoderModulePromise = loadEncoderModule();
   }
   const encoder = await encoderModulePromise;
-  const output = encoder.encode(
-    new Uint8Array(imageData.data.buffer),
-    imageData.width,
-    imageData.height,
-  );
+  const output = encoder.encode(imageData, width, height);
   if (process.env.NODE_ENV === "development") {
     const header = output.slice(0, 4);
     if (
