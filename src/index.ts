@@ -554,7 +554,7 @@ export function p5FrameCapturer(
     ui: true,
     ...options,
   };
-  return (p5: p5, fn: typeof p5, lifecycles: Lifecycles) => {
+  return (_p5: p5, fn: typeof p5, lifecycles: Lifecycles) => {
     // @ts-expect-error My own property
     fn[attachedSymbol] = true;
     if (realOptions.ui) {
@@ -562,10 +562,10 @@ export function p5FrameCapturer(
         await attachCapturerUi(this);
       };
     }
-    lifecycles.postdraw = async function () {
+    lifecycles.postdraw = async () => {
       await postDraw();
     };
-    lifecycles.remove = async function () {
+    lifecycles.remove = async () => {
       await stopCapturer();
     };
   };

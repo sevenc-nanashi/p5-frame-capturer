@@ -1,5 +1,5 @@
 {
-  "$schema": "https://biomejs.dev/schemas/1.9.4/schema.json",
+  "$schema": "https://biomejs.dev/schemas/2.3.14/schema.json",
   "vcs": {
     "enabled": true,
     "clientKind": "git",
@@ -7,15 +7,19 @@
   },
   "files": {
     "ignoreUnknown": false,
-    "ignore": ["dist", "./webp/pkg", "./webp/target", "./src/webpEncoder.*"]
+    "includes": [
+      "**",
+      "!**/dist",
+      "!webp/pkg",
+      "!webp/target",
+      "!src/webpEncoder.*"
+    ]
   },
   "formatter": {
     "enabled": true,
     "indentStyle": "space"
   },
-  "organizeImports": {
-    "enabled": true
-  },
+  "assist": { "actions": { "source": { "organizeImports": "on" } } },
   "linter": {
     "enabled": true,
     "rules": {
