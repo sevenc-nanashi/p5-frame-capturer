@@ -2,7 +2,7 @@
   "name": "p5-frame-capturer",
   "version": "0.4.2",
   "description": "Capture p5.js frames and saves into your local file system",
-  "packageManager": "pnpm@9.15.3",
+  "packageManager": "pnpm@10.29.2",
   "author": {
     "name": "Nanashi.",
     "url": "https://sevenc7c.com"
@@ -18,12 +18,9 @@
     "lint": "biome check",
     "lint:fix": "biome check --write --unsafe",
     "clean": "rm -rf dist",
-    "build:main": "pkgroll --env.NODE_ENV=production --minify",
-    "build:sub": "node --experimental-strip-types ./build.ts",
-    "build": "run-s clean build:main build:sub",
-    "dev:main": "pkgroll -w --env.NODE_ENV=development",
-    "dev:sub": "node --experimental-strip-types ./build.ts --watch",
-    "dev": "run-p dev:main dev:sub",
+    "build": "run-s clean build:bundle",
+    "build:bundle": "cross-env NODE_ENV=production tsdown",
+    "dev": "cross-env NODE_ENV=development tsdown --watch",
     "webp:build": "node --experimental-strip-types ./webp/build.ts",
     "webp:notice": "cd webp && cargo about generate about.hbs > ../NOTICE.md",
     "prepublishOnly": "run-s webp:build webp:notice build"
@@ -44,17 +41,17 @@
   "license": "MIT",
   "devDependencies": {
     "@biomejs/biome": "^2.3.14",
-    "@types/node": "^24.10.12",
-    "@types/wicg-file-system-access": "^2023.10.5",
-    "csstype": "^3.1.3",
+    "@types/node": "^25.2.2",
+    "@types/wicg-file-system-access": "^2023.10.7",
+    "cross-env": "^10.1.0",
+    "csstype": "^3.2.3",
     "npm-run-all2": "^8.0.4",
-    "pkgroll": "^2.6.1",
-    "rolldown": "1.0.0-rc.3",
-    "typescript": "^5.7.3",
-    "zx": "^8.3.2"
+    "tsdown": "^0.20.3",
+    "typescript": "^5.9.3",
+    "zx": "^8.8.5"
   },
   "dependencies": {
-    "vanjs-core": "^1.5.3"
+    "vanjs-core": "^1.6.0"
   },
   "optionalDependencies": {
     "p5": "^2.2.0"

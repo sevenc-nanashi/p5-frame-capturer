@@ -1,7 +1,7 @@
 import fs from "node:fs/promises";
 import { promisify } from "node:util";
 import { gzip } from "node:zlib";
-import * as rolldown from "rolldown";
+import { build } from "tsdown";
 import * as zx from "zx";
 
 const { $ } = zx;
@@ -12,15 +12,16 @@ $.verbose = true;
 zx.cd(import.meta.dirname);
 await $`wasm-pack build --target web --out-dir pkg`;
 
-await rolldown.build({
-  input: "./pkg/webp.js",
-  platform: "browser",
-  output: {
-    format: "esm",
-    file: "../src/webpEncoder.js",
-    minify: true,
+await build({
+  entry: {
+    webpEncoder: "./pkg/webp.js",
   },
+  format: "esm",
+  outDir: "../src",
+  minify: true,
+  platform: "browser",
   treeshake: true,
+  clean: false,
 });
 
 await fs.copyFile("./pkg/webp.d.ts", "../src/webpEncoder.d.ts");

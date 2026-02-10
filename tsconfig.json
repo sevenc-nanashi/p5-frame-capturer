@@ -15,5 +15,5 @@
     "resolveJsonModule": true,
     "allowImportingTsExtensions": true
   },
-  "include": ["src/**/*", "build.ts"]
+  "include": ["src/**/*"]
 }
