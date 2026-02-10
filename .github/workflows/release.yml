@@ -1,11 +1,28 @@
-name: Check
+name: Release
+
 on:
   push:
-  pull_request:
+    tags:
+      - "v*"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    shell: bash
 
 jobs:
-  check:
+  release:
+    name: Release
     runs-on: ubuntu-latest
+    environment: publish
+
+    permissions:
+      id-token: write
+      contents: read
+
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -33,11 +50,18 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
-      - name: Check
-        run: pnpm run lint
-
-      - name: Check Rust
-        working-directory: webp
+      - name: Build
         run: |
-          cargo clippy --all-targets --all-features -- -D warnings
-          cargo fmt --all -- --check
+          pnpm run webp:build
+          pnpm run build
+
+      - name: Update npm
+        run: |
+          # OIDCはnpm 11.5.1以降が必要
+          echo "Current npm version: $(npm -v)"
+          npm install -g npm@latest
+          echo "Updated npm version: $(npm -v)"
+
+      - name: Create Release
+        run: |
+          pnpm release
