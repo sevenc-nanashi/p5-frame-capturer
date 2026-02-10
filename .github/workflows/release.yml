@@ -64,4 +64,4 @@ jobs:
 
       - name: Create Release
         run: |
-          pnpm release
+          pnpm publish
