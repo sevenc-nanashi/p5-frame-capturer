@@ -2,7 +2,7 @@ import fs from "node:fs/promises";
 import { defineConfig } from "tsdown";
 import packageJson from "./package.json" with { type: "json" };
 
-const commonBanner = [
+const banner = [
   "/*",
   " * p5-frame-capturer",
   ` * ${packageJson.description}`,
@@ -11,21 +11,22 @@ const commonBanner = [
   ` * @version ${packageJson.version}`,
   ` * @repository ${packageJson.repository.url}`,
   " */",
-];
-const umdBanner = [
-  ...commonBanner,
   "",
   "/*",
   " * vanjs-core License:",
   " * ```",
-  ...(await fs.readFile("./node_modules/vanjs-core/LICENSE", "utf-8"))
+  ...(
+    await fs.readFile(
+      `${import.meta.dirname}/node_modules/vanjs-core/LICENSE`,
+      "utf-8",
+    )
+  )
     .split("\n")
     .map((line) => (line ? ` * ${line}` : " *")),
   " * ```",
   "*/",
   "",
 ].join("\n");
-const esmBanner = [...commonBanner, ""].join("\n");
 
 const isProduction = process.env.NODE_ENV === "production";
 
@@ -50,7 +51,7 @@ export default defineConfig([
       codeSplitting: false,
     },
     banner: {
-      js: umdBanner,
+      js: banner,
     },
     minify: true,
     platform: "browser",
