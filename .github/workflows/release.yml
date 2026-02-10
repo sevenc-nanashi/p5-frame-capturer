@@ -64,4 +64,4 @@ jobs:
 
       - name: Create Release
         run: |
-          pnpm publish
+          pnpm publish --no-git-checks
